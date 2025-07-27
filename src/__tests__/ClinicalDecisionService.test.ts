@@ -7,6 +7,11 @@ describe('ClinicalDecisionService', () => {
 
   beforeEach(() => {
     service = new ClinicalDecisionService();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const weekLater = new Date();
+    weekLater.setDate(weekLater.getDate() + 8);
+    
     mockPrescription = {
       prescriptionId: '456e7890-e89b-12d3-a456-426614174001',
       patientId: '123e4567-e89b-12d3-a456-426614174000',
@@ -15,12 +20,12 @@ describe('ClinicalDecisionService', () => {
       unit: 'mg',
       frequencyHours: 8,
       startTime: '08:00',
-      startDate: '2024-01-15',
-      endDate: '2024-01-25',
+      startDate: tomorrow.toISOString().split('T')[0],
+      endDate: weekLater.toISOString().split('T')[0],
       status: 'ACTIVE',
       prescribedBy: 'Dr. Smith',
-      createdAt: '2024-01-15T10:30:00Z',
-      updatedAt: '2024-01-15T10:30:00Z'
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
   });
 
@@ -87,11 +92,16 @@ describe('ClinicalDecisionService', () => {
     });
 
     it('should detect long duration treatment', async () => {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() + 1);
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 32); // 31 days later
+      
       const longTreatment: Prescription = {
         ...mockPrescription,
         medicationName: 'prednisone',
-        startDate: '2024-01-01',
-        endDate: '2024-02-01'
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0]
       };
 
       const alerts = await service.checkDosageAlerts(longTreatment);
