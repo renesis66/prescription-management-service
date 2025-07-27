@@ -71,3 +71,31 @@ This service leverages Kotlin's type safety and Micronaut's performance benefits
 - Immutable data classes for thread safety
 - Enhanced DynamoDB client for optimal performance
 - Jakarta validation for robust request validation
+
+## Recent Migration History
+
+**Project Evolution**: This project was originally implemented in Node.js/TypeScript with Express.js, then completely migrated to Kotlin/Micronaut for improved performance and maintainability.
+
+**Migration Completed**: All Node.js files have been removed and replaced with Kotlin/Micronaut equivalents while maintaining 100% API compatibility.
+
+**Key Migration Changes**:
+- Express.js controllers → Micronaut `@Controller` with reactive streams
+- Joi validation → Jakarta Bean Validation annotations
+- AWS SDK v2 DocumentClient → Enhanced DynamoDB client with type safety
+- Jest tests → JUnit 5 with Micronaut Test framework
+- npm/package.json → Gradle with build.gradle.kts
+
+**Current Status**: 
+- ✅ Full Kotlin/Micronaut implementation complete
+- ✅ All tests passing (`./gradlew test`)
+- ✅ DynamoDB integration working with Enhanced Client
+- ✅ Clinical decision support system implemented
+- ✅ Schedule generation algorithms migrated
+- ✅ API endpoints maintain exact compatibility with original Node.js version
+
+**Important Dependencies**:
+- `runtimeOnly("org.yaml:snakeyaml")` is required for `application.yml` parsing
+- All service/repository classes must be `open` for Micronaut AOP proxying
+- Uses `@Serdeable` instead of `@SerdeImport` for JSON serialization
+
+**Build & Test Status**: Service builds and tests successfully. Docker warnings in test output are expected (test resources trying to connect to Docker).
