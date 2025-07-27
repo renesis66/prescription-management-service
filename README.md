@@ -1,15 +1,23 @@
 # Prescription Management Service
 
-A Node.js/TypeScript service for managing clinical prescriptions with DynamoDB backend, featuring automated schedule generation and clinical decision support.
+A Kotlin/Micronaut microservice for managing clinical prescriptions with DynamoDB backend, featuring automated schedule generation and clinical decision support.
 
 ## Features
 
 - **Prescription Management**: Create, read, update, and delete prescriptions
 - **Schedule Generation**: Automatic generation of medication schedules based on dosing frequency
 - **Clinical Decision Support**: Drug interaction checking, dosage validation, and clinical alerts
-- **DynamoDB Integration**: Optimized data access patterns for prescriptions and schedules
-- **Validation**: Comprehensive input validation with Joi
-- **Testing**: Unit tests with Jest
+- **DynamoDB Integration**: Optimized data access patterns using AWS SDK v2 Enhanced Client
+- **Validation**: Comprehensive input validation using Jakarta Bean Validation
+- **Testing**: JUnit 5 tests with Micronaut Test framework
+
+## Technology Stack
+
+- **Kotlin 1.9.20**: Modern JVM language with null safety and concise syntax
+- **Micronaut 4.2.1**: Cloud-native JVM framework with dependency injection and reactive streams
+- **AWS SDK v2**: Enhanced DynamoDB client with improved performance
+- **Jakarta Validation**: Bean validation for request validation
+- **JUnit 5**: Modern testing framework with Micronaut Test integration
 
 ## API Endpoints
 
@@ -21,39 +29,45 @@ A Node.js/TypeScript service for managing clinical prescriptions with DynamoDB b
 - `GET /api/prescriptions/{id}/schedule` - Get prescription schedule
 
 ### Health Check
-- `GET /health` - Service health status
+- `GET /api/health` - Service health status
 
 ## Installation
 
+### Prerequisites
+- Java 17+
+- Gradle 8.4+
+- AWS credentials configured
+
+### Build and Run
+
 ```bash
-npm install
+# Build the application
+./gradlew build
+
+# Run tests
+./gradlew test
+
+# Run the application
+./gradlew run
+
+# Or build and run JAR
+./gradlew build
+java -jar build/libs/prescription-management-service-0.1-all.jar
 ```
 
 ## Configuration
 
-Copy `.env.example` to `.env` and configure:
-
+Create `.env` file from example:
 ```bash
 cp .env.example .env
 ```
 
 Required environment variables:
-- `AWS_REGION` - AWS region for DynamoDB
+- `AWS_REGION` - AWS region for DynamoDB (default: us-east-1)
 - `PRESCRIPTIONS_TABLE` - DynamoDB table name for prescriptions
 - `PRESCRIPTION_SCHEDULES_TABLE` - DynamoDB table name for schedules
 - `AWS_ACCESS_KEY_ID` - AWS access key
 - `AWS_SECRET_ACCESS_KEY` - AWS secret key
-
-## Development
-
-```bash
-npm run dev     # Start development server
-npm run build   # Build for production
-npm start       # Start production server
-npm test        # Run tests
-npm run lint    # Lint code
-npm run typecheck # Type checking
-```
 
 ## DynamoDB Schema
 
@@ -85,19 +99,18 @@ The service includes built-in clinical decision support features:
 ### Create Prescription
 
 ```bash
-POST /api/patients/123e4567-e89b-12d3-a456-426614174000/prescriptions
-Content-Type: application/json
-
-{
-  "medicationName": "amoxicillin",
-  "dosage": 500,
-  "unit": "mg",
-  "frequencyHours": 8,
-  "startTime": "08:00",
-  "startDate": "2024-01-15",
-  "endDate": "2024-01-25",
-  "prescribedBy": "Dr. Smith"
-}
+curl -X POST http://localhost:3000/api/patients/123e4567-e89b-12d3-a456-426614174000/prescriptions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "medicationName": "amoxicillin",
+    "dosage": 500,
+    "unit": "mg",
+    "frequencyHours": 8,
+    "startTime": "08:00",
+    "startDate": "2024-12-01",
+    "endDate": "2024-12-10",
+    "prescribedBy": "Dr. Smith"
+  }'
 ```
 
 ### Response
@@ -113,12 +126,12 @@ Content-Type: application/json
     "unit": "mg",
     "frequencyHours": 8,
     "startTime": "08:00",
-    "startDate": "2024-01-15",
-    "endDate": "2024-01-25",
+    "startDate": "2024-12-01",
+    "endDate": "2024-12-10",
     "status": "ACTIVE",
     "prescribedBy": "Dr. Smith",
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
+    "createdAt": "2024-07-27T15:30:00Z",
+    "updatedAt": "2024-07-27T15:30:00Z"
   },
   "clinicalAlerts": [
     {
@@ -131,19 +144,60 @@ Content-Type: application/json
 }
 ```
 
-## Testing
+## Development
 
-Run the test suite:
-
-```bash
-npm test
+### Project Structure
+```
+src/
+├── main/kotlin/com/prescription/
+│   ├── controller/         # HTTP controllers
+│   ├── service/           # Business logic services
+│   ├── repository/        # DynamoDB repositories
+│   ├── domain/           # Data classes and entities
+│   ├── config/           # Configuration classes
+│   └── Application.kt    # Main application class
+├── test/kotlin/          # Test classes
+└── main/resources/       # Configuration files
 ```
 
-Run tests with coverage:
+### Key Features
+
+1. **Type Safety**: Kotlin's null safety eliminates NPE risks
+2. **Performance**: Compiled JVM bytecode with excellent performance characteristics
+3. **Dependency Injection**: Micronaut's compile-time DI for fast startup
+4. **Reactive Streams**: Built-in support for reactive programming
+5. **Native Compilation**: Optional GraalVM native image support
+
+### Testing
 
 ```bash
-npm test -- --coverage
+# Run all tests
+./gradlew test
+
+# Run specific test class
+./gradlew test --tests "ClinicalDecisionServiceTest"
+
+# Run tests with coverage
+./gradlew test jacocoTestReport
 ```
+
+### Code Quality
+
+```bash
+# Kotlin code style check
+./gradlew ktlintCheck
+
+# Format code
+./gradlew ktlintFormat
+```
+
+## Benefits
+
+- **Performance**: Fast startup time and low memory footprint
+- **Type Safety**: Compile-time error detection prevents runtime errors
+- **Ecosystem**: Access to mature JVM ecosystem and libraries
+- **Scalability**: Excellent horizontal scaling characteristics
+- **Monitoring**: Superior observability with Micrometer/Prometheus integration
 
 ## License
 

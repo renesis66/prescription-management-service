@@ -4,47 +4,70 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Compile TypeScript to JavaScript  
-- `npm run typecheck` - Run TypeScript type checking without compilation
-- `npm run lint` - Run ESLint on TypeScript files
-- `npm test` - Run Jest test suite
-- `npm test -- --coverage` - Run tests with coverage report
-- `npm test -- --watch` - Run tests in watch mode
-- `npm test src/__tests__/SpecificFile.test.ts` - Run a single test file
+- `./gradlew build` - Build the application
+- `./gradlew test` - Run JUnit 5 tests
+- `./gradlew run` - Run the application locally
+- `./gradlew clean` - Clean build artifacts
+- `./gradlew test --tests "ClassName"` - Run specific test class
+- `./gradlew test jacocoTestReport` - Run tests with coverage report
 
 ## Architecture Overview
 
-This is a prescription management service built with Express/TypeScript and DynamoDB. The architecture follows a layered approach:
+This is a Kotlin/Micronaut prescription management service. The architecture follows Micronaut's dependency injection and reactive patterns:
 
-**Controllers** (`src/controllers/`) handle HTTP requests/responses and coordinate between services. The main `PrescriptionController` orchestrates prescription operations, schedule generation, and clinical alerts.
-
-**Models** (`src/models/`) provide DynamoDB data access layers. `PrescriptionModel` handles prescription CRUD operations using specific access patterns, while `ScheduleModel` manages medication schedules. Both use the DynamoDB DocumentClient with proper PK/SK patterns and GSI queries.
+**Controllers** (`src/main/kotlin/com/prescription/controller/`) handle HTTP requests using Micronaut's `@Controller` annotation. The main `PrescriptionController` uses Jakarta Bean Validation for request validation and returns structured API responses.
 
 **Services** contain business logic:
-- `ScheduleService` generates medication schedules based on prescription frequency and duration
-- `ClinicalDecisionService` provides drug interaction checking, dosage validation, and clinical alerts
+- `ScheduleService` generates medication schedules using Kotlin's date/time APIs
+- `ClinicalDecisionService` provides drug interaction checking and dosage validation using immutable data classes and enum types
 
-**DynamoDB Design Patterns**:
-- Prescriptions table uses `PATIENT#{id}` as PK and `PRESCRIPTION#{id}` as SK
-- GSI1 allows direct prescription lookup via `PRESCRIPTION#{id}` 
-- GSI2 enables status-based queries via `STATUS#{status}`
-- Schedule table uses `PRESCRIPTION#{id}` as PK and `SCHEDULE#{date}#{time}` as SK
-- Schedule GSI1 enables patient schedule queries via `PATIENT#{id}`
+**Repositories** (`src/main/kotlin/com/prescription/repository/`) provide DynamoDB data access using AWS SDK v2 Enhanced Client. Uses `@Singleton` for dependency injection and proper Kotlin null safety.
 
-**Key Integration Points**:
-- When prescriptions are created/updated, schedules are automatically regenerated
-- Clinical decision support runs during prescription creation, checking against existing patient prescriptions
-- Schedule deletion is triggered when prescriptions are deleted or timing parameters change
+**Domain Model** (`src/main/kotlin/com/prescription/domain/`) uses Kotlin data classes with:
+- `@Introspected` for Micronaut reflection-free operation
+- `@Serdeable` for JSON serialization
+- Jakarta validation annotations for request validation
+- Proper enum types for status fields
 
-## Environment Setup
+**DynamoDB Integration**:
+- Uses AWS SDK v2 Enhanced Client with `@DynamoDbBean` annotations
+- Optimized access patterns for prescription and schedule queries
+- `PrescriptionDynamoItem` and `ScheduleDynamoItem` for persistence layer
+- Proper separation between domain models and DynamoDB items
 
-Copy `.env.example` to `.env` and configure AWS credentials and DynamoDB table names. The service requires `PRESCRIPTIONS_TABLE` and `PRESCRIPTION_SCHEDULES_TABLE` environment variables.
+**Configuration** (`src/main/kotlin/com/prescription/config/`) uses Micronaut's `@Factory` pattern for bean creation and `@Value` for property injection from `application.yml`.
+
+## Key Kotlin/Micronaut Patterns
+
+**Dependency Injection**: Constructor injection with `@Singleton` services. Micronaut performs compile-time DI analysis.
+
+**Null Safety**: Kotlin's null safety eliminates potential NPEs. Use `?` for nullable types and `!!` only when absolutely certain.
+
+**Data Classes**: Immutable by default with automatic `equals()`, `hashCode()`, and `toString()` methods.
+
+**Extension Functions**: Used for converting between domain models and DynamoDB items.
+
+**Coroutines**: Service methods can use `suspend` for reactive operations, though current implementation uses blocking calls.
 
 ## Testing Strategy
 
-Tests use Jest with mocked dependencies. Controller tests mock the model and service layers. Service tests focus on business logic like schedule generation algorithms and clinical rule evaluation.
+Tests use JUnit 5 with Micronaut Test framework:
+- `@MicronautTest` for integration tests with full application context
+- `@MockBean` for mocking dependencies in controller tests  
+- AssertJ for fluent assertions
+- Mockito Kotlin for mocking
 
-## API Design
+Test structure mirrors main source with same package structure.
 
-All endpoints follow a consistent response format with `success` boolean and `data`/`error` fields. Clinical alerts are included in prescription creation responses when applicable. UUIDs are validated using Joi schemas.
+## Environment Configuration
+
+Uses `application.yml` for configuration with environment variable substitution. AWS credentials can be provided via environment variables or AWS credential chain.
+
+## Architecture Notes
+
+This service leverages Kotlin's type safety and Micronaut's performance benefits. Key architectural decisions:
+
+- Compile-time dependency injection for fast startup
+- Immutable data classes for thread safety
+- Enhanced DynamoDB client for optimal performance
+- Jakarta validation for robust request validation

@@ -1,48 +1,34 @@
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Production build
-dist/
+# Gradle
+.gradle/
 build/
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
 
 # IDE
-.vscode/
 .idea/
-*.swp
-*.swo
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Coverage
-coverage/
-
 # Logs
-logs/
 *.log
 
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
+# Environment
+.env
+.env.local
 
-# Optional npm cache directory
-.npm
+# Test results
+test-results/
+reports/
 
-# ESLint cache
-.eslintcache
-
-# TypeScript cache
-*.tsbuildinfo
+# JVM
+hs_err_pid*
