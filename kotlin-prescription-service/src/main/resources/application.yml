@@ -1,0 +1,20 @@
+micronaut:
+  application:
+    name: prescription-management-service
+  server:
+    port: 3000
+  http:
+    services:
+      default:
+        read-timeout: 30s
+
+aws:
+  region: ${AWS_REGION:us-east-1}
+  dynamodb:
+    prescriptions-table: ${PRESCRIPTIONS_TABLE:prescriptions}
+    prescription-schedules-table: ${PRESCRIPTION_SCHEDULES_TABLE:prescription-schedules}
+
+logging:
+  level:
+    com.prescription: INFO
+    io.micronaut.http: DEBUG
