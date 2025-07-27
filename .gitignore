@@ -29,6 +29,7 @@ Thumbs.db
 # Test results
 test-results/
 reports/
+.micronaut/
 
 # JVM
 hs_err_pid*
