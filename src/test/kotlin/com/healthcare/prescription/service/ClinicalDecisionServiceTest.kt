@@ -1,7 +1,7 @@
-package com.prescription.service
+package com.healthcare.prescription.service
 
-import com.prescription.domain.Prescription
-import com.prescription.domain.PrescriptionStatus
+import com.healthcare.prescription.domain.Prescription
+import com.healthcare.prescription.domain.PrescriptionStatus
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.assertj.core.api.Assertions.assertThat

@@ -1,9 +1,9 @@
-package com.prescription.controller
+package com.healthcare.prescription.controller
 
-import com.prescription.domain.*
-import com.prescription.repository.PrescriptionRepository
-import com.prescription.service.ClinicalDecisionService
-import com.prescription.service.ScheduleService
+import com.healthcare.prescription.domain.*
+import com.healthcare.prescription.repository.PrescriptionRepository
+import com.healthcare.prescription.service.ClinicalDecisionService
+import com.healthcare.prescription.service.ScheduleService
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.validation.Validated
@@ -149,11 +149,11 @@ data class ApiResponse<T>(
 data class ApiResponseWithAlerts<T>(
     val success: Boolean,
     val data: T? = null,
-    val clinicalAlerts: List<com.prescription.service.ClinicalAlert>? = null,
+    val clinicalAlerts: List<com.healthcare.prescription.service.ClinicalAlert>? = null,
     val error: String? = null
 ) {
     companion object {
-        fun <T> success(data: T, alerts: List<com.prescription.service.ClinicalAlert>? = null): ApiResponseWithAlerts<T> = 
+        fun <T> success(data: T, alerts: List<com.healthcare.prescription.service.ClinicalAlert>? = null): ApiResponseWithAlerts<T> = 
             ApiResponseWithAlerts(true, data, alerts)
         fun <T> error(message: String): ApiResponseWithAlerts<T> = ApiResponseWithAlerts(false, error = message)
     }

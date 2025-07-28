@@ -1,4 +1,4 @@
-package com.prescription
+package com.healthcare.prescription
 
 import io.micronaut.runtime.Micronaut.run
 

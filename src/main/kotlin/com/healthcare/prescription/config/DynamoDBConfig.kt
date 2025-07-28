@@ -1,7 +1,7 @@
-package com.prescription.config
+package com.healthcare.prescription.config
 
-import com.prescription.domain.PrescriptionDynamoItem
-import com.prescription.domain.ScheduleDynamoItem
+import com.healthcare.prescription.domain.PrescriptionDynamoItem
+import com.healthcare.prescription.domain.ScheduleDynamoItem
 import io.micronaut.context.annotation.Bean
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Value

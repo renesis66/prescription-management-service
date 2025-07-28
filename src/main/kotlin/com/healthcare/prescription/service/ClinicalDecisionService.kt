@@ -1,6 +1,6 @@
-package com.prescription.service
+package com.healthcare.prescription.service
 
-import com.prescription.domain.Prescription
+import com.healthcare.prescription.domain.Prescription
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.serde.annotation.Serdeable
 import jakarta.inject.Singleton
