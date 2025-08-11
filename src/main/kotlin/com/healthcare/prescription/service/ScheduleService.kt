@@ -1,9 +1,9 @@
-package com.prescription.service
+package com.healthcare.prescription.service
 
-import com.prescription.domain.Prescription
-import com.prescription.domain.PrescriptionSchedule
-import com.prescription.domain.ScheduleStatus
-import com.prescription.repository.ScheduleRepository
+import com.healthcare.prescription.domain.Prescription
+import com.healthcare.prescription.domain.PrescriptionSchedule
+import com.healthcare.prescription.domain.ScheduleStatus
+import com.healthcare.prescription.repository.ScheduleRepository
 import jakarta.inject.Singleton
 import java.time.LocalDate
 import java.time.LocalTime

@@ -1,9 +1,9 @@
-package com.prescription.controller
+package com.healthcare.prescription.controller
 
-import com.prescription.domain.*
-import com.prescription.repository.PrescriptionRepository
-import com.prescription.service.ClinicalDecisionService
-import com.prescription.service.ScheduleService
+import com.healthcare.prescription.domain.*
+import com.healthcare.prescription.repository.PrescriptionRepository
+import com.healthcare.prescription.service.ClinicalDecisionService
+import com.healthcare.prescription.service.ScheduleService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

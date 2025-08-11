@@ -1,6 +1,6 @@
-package com.prescription.repository
+package com.healthcare.prescription.repository
 
-import com.prescription.domain.*
+import com.healthcare.prescription.domain.*
 import jakarta.inject.Singleton
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable
 import software.amazon.awssdk.enhanced.dynamodb.Key

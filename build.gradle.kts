@@ -7,7 +7,7 @@ plugins {
 }
 
 version = "0.1"
-group = "com.prescription"
+group = "com.healthcare.prescription"
 
 val kotlinVersion = project.properties.get("kotlinVersion")
 
@@ -43,7 +43,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("com.prescription.ApplicationKt")
+    mainClass.set("com.healthcare.prescription.ApplicationKt")
 }
 
 java {
@@ -70,6 +70,6 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("com.prescription.*")
+        annotations("com.healthcare.prescription.*")
     }
 }
