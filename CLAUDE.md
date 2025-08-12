@@ -2,12 +2,104 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Service Startup Commands
+
+### Prerequisites
+- Java 17+
+- Docker or Rancher Desktop (for DynamoDB Local)
+
+### Quick Start (Known Issues)
+
+**⚠️ CURRENT STATUS: Service has complex startup errors**
+
+#### Step 1: Test Service (Works)
+```bash
+# Run tests to verify service works
+./gradlew test
+```
+
+#### Step 2: Start Docker/Rancher Desktop
+```bash
+open -a "Rancher Desktop"
+# Wait for Rancher Desktop to fully start (may take 30-60 seconds)
+```
+
+#### Step 3: Start DynamoDB Local and Create Table (If Needed)
+```bash
+# Start DynamoDB Local (if not already running from other services)
+docker-compose up -d dynamodb-local
+
+# Create prescriptions table (may need to be created)
+aws dynamodb create-table \
+    --table-name prescriptions \
+    --attribute-definitions \
+        AttributeName=PK,AttributeType=S \
+        AttributeName=SK,AttributeType=S \
+    --key-schema \
+        AttributeName=PK,KeyType=HASH \
+        AttributeName=SK,KeyType=RANGE \
+    --provisioned-throughput \
+        ReadCapacityUnits=5,WriteCapacityUnits=5 \
+    --endpoint-url http://localhost:8000 \
+    --region us-east-1
+```
+
+#### Step 4: Attempt to Start Service (Currently Fails)
+```bash
+# Check if port 8080 is in use
+lsof -i :8080
+
+# Start on custom port to avoid conflicts
+MICRONAUT_SERVER_PORT=8083 ./gradlew run
+```
+
+### Known Issues
+
+#### Complex Startup Error:
+The service fails during startup with extensive serialization and bean configuration errors.
+
+**Error Symptoms:**
+- Extremely long stack traces with serialization issues
+- Bean context initialization failures
+- Multiple configuration conflicts
+
+**Potential Causes:**
+1. Complex dependency version conflicts
+2. AWS SDK and DynamoDB configuration issues
+3. Missing or conflicting configuration properties
+4. Serialization/deserialization framework conflicts
+
+**Potential Solutions** (not yet implemented):
+1. Review and update AWS SDK dependencies
+2. Simplify DynamoDB configuration
+3. Add missing configuration properties
+4. Debug with minimal configuration first
+
+### Troubleshooting
+
+1. **Service fails during startup:**
+   - Check AWS SDK and DynamoDB dependencies
+   - Review configuration files for conflicts
+   - Try running with minimal configuration
+
+2. **Port conflicts:**
+   ```bash
+   lsof -i :8080
+   kill <PID>
+   # Or use: MICRONAUT_SERVER_PORT=8083 ./gradlew run
+   ```
+
 ## Development Commands
 
-- `./gradlew build` - Build the application
-- `./gradlew test` - Run JUnit 5 tests
-- `./gradlew run` - Run the application locally
-- `./gradlew clean` - Clean build artifacts
+### Known Working Commands
+```bash
+./gradlew test              # ✅ All tests pass
+./gradlew build             # ✅ Build succeeds
+./gradlew run               # ❌ Fails with complex startup errors
+./gradlew clean             # ✅ Clean build works
+```
+
+### Additional Commands
 - `./gradlew test --tests "ClassName"` - Run specific test class
 - `./gradlew test jacocoTestReport` - Run tests with coverage report
 
