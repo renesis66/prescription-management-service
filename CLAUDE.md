@@ -8,9 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Java 17+
 - Docker or Rancher Desktop (for DynamoDB Local)
 
-### Quick Start (Known Issues)
+### Quick Start
 
-**⚠️ CURRENT STATUS: Service has complex startup errors**
+**✅ CURRENT STATUS: Service starts successfully with DynamoDB bean conflicts resolved**
 
 #### Step 1: Test Service (Works)
 ```bash
@@ -18,18 +18,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew test
 ```
 
-#### Step 2: Start Docker/Rancher Desktop
+#### Step 2: Start Docker/Rancher Desktop (Optional - for DynamoDB Local)
 ```bash
 open -a "Rancher Desktop"
 # Wait for Rancher Desktop to fully start (may take 30-60 seconds)
 ```
 
-#### Step 3: Start DynamoDB Local and Create Table (If Needed)
+#### Step 3: Start DynamoDB Local and Create Tables (Optional)
 ```bash
 # Start DynamoDB Local (if not already running from other services)
 docker-compose up -d dynamodb-local
 
-# Create prescriptions table (may need to be created)
+# Create prescriptions table
 aws dynamodb create-table \
     --table-name prescriptions \
     --attribute-definitions \
@@ -42,61 +42,94 @@ aws dynamodb create-table \
         ReadCapacityUnits=5,WriteCapacityUnits=5 \
     --endpoint-url http://localhost:8000 \
     --region us-east-1
+
+# Create prescription-schedules table
+aws dynamodb create-table \
+    --table-name prescription-schedules \
+    --attribute-definitions \
+        AttributeName=PK,AttributeType=S \
+        AttributeName=SK,AttributeType=S \
+    --key-schema \
+        AttributeName=PK,KeyType=HASH \
+        AttributeName=SK,KeyType=RANGE \
+    --provisioned-throughput \
+        ReadCapacityUnits=5,WriteCapacityUnits=5 \
+    --endpoint-url http://localhost:8000 \
+    --region us-east-1
 ```
 
-#### Step 4: Attempt to Start Service (Currently Fails)
+#### Step 4: Start Service (Now Works Successfully)
 ```bash
-# Check if port 8080 is in use
-lsof -i :8080
+# Build the service
+./gradlew build
 
-# Start on custom port to avoid conflicts
-MICRONAUT_SERVER_PORT=8083 ./gradlew run
+# Start service (runs on port 8084)
+./gradlew run
 ```
 
-### Known Issues
+#### Step 5: Test Service Health
+```bash
+# Test health endpoint
+curl http://localhost:8084/api/health
 
-#### Complex Startup Error:
-The service fails during startup with extensive serialization and bean configuration errors.
+# Expected response:
+# {"status":"healthy","service":"prescription-management-service","timestamp":"2025-08-12T02:18:38.533630Z"}
+```
 
-**Error Symptoms:**
-- Extremely long stack traces with serialization issues
-- Bean context initialization failures
-- Multiple configuration conflicts
+### Recent Fixes Applied ✅
 
-**Potential Causes:**
-1. Complex dependency version conflicts
-2. AWS SDK and DynamoDB configuration issues
-3. Missing or conflicting configuration properties
-4. Serialization/deserialization framework conflicts
+#### DynamoDB Configuration Issues Resolved:
+The service startup issues have been resolved by implementing service-specific DynamoDB qualifiers as required by the microservices architecture.
 
-**Potential Solutions** (not yet implemented):
-1. Review and update AWS SDK dependencies
-2. Simplify DynamoDB configuration
-3. Add missing configuration properties
-4. Debug with minimal configuration first
+**Changes Made:**
+- Added `@PrescriptionManagementDynamoDb` qualifier annotation for service-specific DynamoDB beans
+- Updated DynamoDB configuration with `@Requires(notEnv = ["test"])` for production isolation
+- Simplified DynamoDB client configuration to match medication-catalog-service pattern
+- Changed service port from 3000 to 8084 to avoid conflicts with other services
+- Updated repositories to use qualified DynamoDB injection
+
+**Benefits:**
+- Service can now run alongside other microservices without bean conflicts
+- Follows CLAUDE.md microservices standards for DynamoDB configuration
+- Clean startup without dependency injection issues
+- Consistent configuration pattern across services
 
 ### Troubleshooting
 
-1. **Service fails during startup:**
-   - Check AWS SDK and DynamoDB dependencies
-   - Review configuration files for conflicts
-   - Try running with minimal configuration
-
-2. **Port conflicts:**
+1. **Port conflicts:**
    ```bash
-   lsof -i :8080
-   kill <PID>
-   # Or use: MICRONAUT_SERVER_PORT=8083 ./gradlew run
+   # Check if port 8084 is in use
+   lsof -i :8084
+   kill <PID>  # If needed
    ```
+
+2. **DynamoDB connection issues:**
+   - Ensure DynamoDB Local is running on port 8000
+   - Check Docker/Rancher Desktop is running
+   - Verify tables exist with correct schema
+
+3. **Service won't start:**
+   - Ensure no other services are using qualified bean names
+   - Check logs for specific error messages
+   - Try `./gradlew clean build` to clear any build artifacts
 
 ## Development Commands
 
 ### Known Working Commands
 ```bash
 ./gradlew test              # ✅ All tests pass
-./gradlew build             # ✅ Build succeeds
-./gradlew run               # ❌ Fails with complex startup errors
+./gradlew build             # ✅ Build succeeds  
+./gradlew run               # ✅ Starts successfully on port 8084
 ./gradlew clean             # ✅ Clean build works
+```
+
+### API Testing Commands
+```bash
+# Health check
+curl http://localhost:8084/api/health
+
+# Test API endpoints (require valid UUIDs)
+curl http://localhost:8084/api/patients/550e8400-e29b-41d4-a716-446655440000/prescriptions
 ```
 
 ### Additional Commands
