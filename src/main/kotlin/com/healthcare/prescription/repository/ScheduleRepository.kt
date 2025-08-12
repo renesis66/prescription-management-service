@@ -1,5 +1,6 @@
 package com.healthcare.prescription.repository
 
+import com.healthcare.prescription.config.PrescriptionManagementDynamoDb
 import com.healthcare.prescription.domain.*
 import jakarta.inject.Singleton
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable
@@ -11,7 +12,7 @@ import java.time.LocalTime
 
 @Singleton
 open class ScheduleRepository(
-    private val scheduleTable: DynamoDbTable<ScheduleDynamoItem>
+    @PrescriptionManagementDynamoDb private val scheduleTable: DynamoDbTable<ScheduleDynamoItem>
 ) {
 
     fun createScheduleEntry(schedule: PrescriptionSchedule): PrescriptionSchedule {

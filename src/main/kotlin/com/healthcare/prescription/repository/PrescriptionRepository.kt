@@ -1,5 +1,6 @@
 package com.healthcare.prescription.repository
 
+import com.healthcare.prescription.config.PrescriptionManagementDynamoDb
 import com.healthcare.prescription.domain.*
 import jakarta.inject.Singleton
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable
@@ -13,7 +14,7 @@ import java.util.*
 
 @Singleton
 open class PrescriptionRepository(
-    private val prescriptionTable: DynamoDbTable<PrescriptionDynamoItem>
+    @PrescriptionManagementDynamoDb private val prescriptionTable: DynamoDbTable<PrescriptionDynamoItem>
 ) {
 
     fun createPrescription(patientId: String, prescription: CreatePrescriptionRequest): Prescription {
